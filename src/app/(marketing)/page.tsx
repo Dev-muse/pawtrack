@@ -1,19 +1,39 @@
+import { Button } from "@/components/ui/button";
 import Image from "next/image";
+import Link from "next/link";
+import Logo from "@/components/logo";
+import AppPreview from '@/assets/app-preview.png'
+
 
 export default function Home() {
   return (
-    <div>
-      <h1 className="text-3xl font-bold underline">Hello world!</h1>
+    <main className="bg-[#dd9649] min-h-screen flex flex-col xl:flex-row items-center justify-center gap-10">
       <Image
-        src="/images/next.svg"
-        alt="Next.js Logo"
-        width={180}
-        height={37}
-        priority
+        src={AppPreview}
+        alt="Preview of PetSoft"
+        width={519}
+        height={472}
       />
-      <p className="text-lg">This is a sample Next.js application.</p>
-      <p className="text-lg">It uses Tailwind CSS for styling.</p>
-      <p className="text-lg">Enjoy coding!</p>
-    </div>
+
+      <div>
+        <Logo />
+        <h1 className="text-5xl font-semibold my-6 max-w-[500px]">
+          Manage your <span className="font-extrabold">pet daycare</span> with
+          ease
+        </h1>
+        <p className="text-2xl font-medium max-w-[600px]">
+          Use PawTrack to easily keep track of pets under your care. Get lifetime
+          access for $299.
+        </p>
+        <div className="mt-10 space-x-3">
+          <Button asChild className="rounded-full">
+            <Link href="/signup">Get started</Link>
+          </Button>
+          <Button asChild variant="secondary" className="rounded-full">
+            <Link href="/login">Log in</Link>
+          </Button>
+        </div>
+      </div>
+    </main>
   );
 }
