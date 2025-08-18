@@ -10,7 +10,7 @@ function PetList() {
   const { pets, selectedPetId, handleSelectedPetId } = usePetContext();
 
   return (
-    <ul className="bg-white border-b border-black/[0.08]">
+    <ul className="bg-white border-b border-light">
       {pets.map((pet: Pet) => (
         <li key={pet.id} className=" ">
           <button
