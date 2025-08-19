@@ -3,15 +3,21 @@ import Image from "next/image";
 import React from "react";
 
 import { type Pet } from "@/lib/types";
-import { usePetContext } from "@/lib/hooks";
+import { usePetContext, useSearchContext } from "@/lib/hooks";
 import { cn } from "@/lib/utils";
 
 function PetList() {
   const { pets, selectedPetId, handleSelectedPetId } = usePetContext();
+  const {searchQuery} = useSearchContext() || {searchQuery: ''};
+
+  // Filter pets based on the search query
+  const filteredPets = pets.filter((pet: Pet) =>
+    pet.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <ul className="bg-white border-b border-light">
-      {pets.map((pet: Pet) => (
+      {filteredPets.map((pet: Pet) => (
         <li key={pet.id} className=" ">
           <button
             onClick={() => handleSelectedPetId(pet.id)}

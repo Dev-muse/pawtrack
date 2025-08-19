@@ -31,8 +31,7 @@ function PetContextProvider({ children, data }: PetContextProviderProps) {
 
   // function to handle selection of a pet by ID
   const handleSelectedPetId = (id: string) => {
-    console.log('selected', id)
-    setSelectedPetId(id);
+     setSelectedPetId(id);
   };
   return (
     <PetContext.Provider value={{ pets, selectedPet ,numberOfPets,selectedPetId, handleSelectedPetId }}>
