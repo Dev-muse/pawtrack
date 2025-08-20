@@ -3,7 +3,7 @@
 import { usePetContext } from "@/lib/hooks";
 import { Pet } from "@/lib/types";
 import Image from "next/image";
-import React from "react";
+import React, { use } from "react";
 import PetButton from "./PetButton";
 
 function PetDetails() {
@@ -36,6 +36,7 @@ function EmptyView() {
 }
 
 function TopBar({ pet }: Props) {
+   const {handleCheckoutPet} = usePetContext();
   return (
     <article className="flex items-center bg-white shadow border-b border border-light gap-2 px-8 py-5">
       <Image
@@ -49,7 +50,7 @@ function TopBar({ pet }: Props) {
       <div className="ml-auto space-x-2">
         <PetButton actionType="edit">Edit</PetButton>
 
-        <PetButton actionType="checkout" >Checkout</PetButton>
+        <PetButton onClick={()=>handleCheckoutPet(pet.id)} actionType="checkout" >Checkout</PetButton>
       </div>
     </article>
   );
