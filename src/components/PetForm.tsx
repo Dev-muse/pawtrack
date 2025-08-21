@@ -6,6 +6,7 @@ import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
 import { Button } from "./ui/button";
 import { usePetContext } from "@/lib/hooks";
+import { addPet } from "@/actions/action";
 
 type PetFormProps = {
   actionType: "add" | "edit";
@@ -16,32 +17,14 @@ function PetForm({ actionType, onFormSubmit }: PetFormProps) {
   // Use the custom hook to access pet context
   const { handleAddPet, selectedPet, handleEditPet } = usePetContext();
 
-  const handleSubmit = (event: React.FormEvent) => {
-    event.preventDefault();
-    // Handle form submission logic here
-    // For example, you can call a function to add or edit a pet
-
-    const formData = new FormData(event.currentTarget as HTMLFormElement);
-    const newPet = {
-      name: formData.get("name") as string,
-      ownerName: formData.get("ownerName") as string,
-      imageUrl:
-        (formData.get("imageUrl") as string) ||
-        "https://bytegrad.com/course-assets/react-nextjs/pet-placeholder.png",
-      age: +(formData.get("age") as string),
-      notes: formData.get("notes") as string,
-    };
-
-    if (actionType == "add") {
-      handleAddPet(newPet);
-    } else {
-      handleEditPet(selectedPet!.id, newPet);
-    }
-
-    onFormSubmit(); // Call the optional callback if provided
-  };
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-y-4">
+    <form
+      action={(formData) => {
+        addPet(formData);
+        onFormSubmit();
+      }}
+      className="flex flex-col gap-y-4"
+    >
       <div className="space-y-3">
         <div className="space-y-1">
           <Label htmlFor="name">Name</Label>
