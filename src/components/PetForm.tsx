@@ -7,6 +7,8 @@ import { Textarea } from "./ui/textarea";
 import { Button } from "./ui/button";
 import { usePetContext } from "@/lib/hooks";
 import { addPet } from "@/actions/action";
+import { sleep } from "@/lib/utils";
+import PetFormBtn from "./PetFormBtn";
 
 type PetFormProps = {
   actionType: "add" | "edit";
@@ -17,6 +19,7 @@ function PetForm({ actionType, onFormSubmit }: PetFormProps) {
   // Use the custom hook to access pet context
   const { handleAddPet, selectedPet, handleEditPet } = usePetContext();
 
+ 
   return (
     <form
       action={(formData) => {
@@ -76,9 +79,7 @@ function PetForm({ actionType, onFormSubmit }: PetFormProps) {
           />
         </div>
       </div>
-      <Button type="submit" className=" ">{`${
-        actionType == "add" ? "Add Pet" : "Edit Pet"
-      }`}</Button>
+     <PetFormBtn actionType={actionType}/>
     </form>
   );
 }

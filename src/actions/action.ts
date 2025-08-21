@@ -1,5 +1,6 @@
 'use server';
 import prisma from "@/lib/db";
+import { sleep } from "@/lib/utils";
 import { Pet } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 
@@ -8,7 +9,7 @@ const imagePlaceholder = "https://bytegrad.com/course-assets/react-nextjs/pet-pl
 export const addPet = async (formData ) => {
   console.log(formData)
   try {
-    const newPet = await prisma.pet.create({
+     const newPet = await prisma.pet.create({
       data: {
         name: formData.get("name") as string,
         ownerName: formData.get("ownerName") as string,
