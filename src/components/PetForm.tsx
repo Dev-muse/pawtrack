@@ -9,6 +9,7 @@ import { usePetContext } from "@/lib/hooks";
 import { addPet } from "@/actions/action";
 import { sleep } from "@/lib/utils";
 import PetFormBtn from "./PetFormBtn";
+import { toast } from "sonner";
 
 type PetFormProps = {
   actionType: "add" | "edit";
@@ -19,11 +20,13 @@ function PetForm({ actionType, onFormSubmit }: PetFormProps) {
   // Use the custom hook to access pet context
   const { handleAddPet, selectedPet, handleEditPet } = usePetContext();
 
- 
   return (
     <form
-      action={(formData) => {
-        addPet(formData);
+      action={async (formData) => {
+        const error = await addPet(formData);
+        if (error) {
+          toast.error(error.message );
+        }
         onFormSubmit();
       }}
       className="flex flex-col gap-y-4"
@@ -79,7 +82,7 @@ function PetForm({ actionType, onFormSubmit }: PetFormProps) {
           />
         </div>
       </div>
-     <PetFormBtn actionType={actionType}/>
+      <PetFormBtn actionType={actionType} />
     </form>
   );
 }
