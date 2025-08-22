@@ -16,14 +16,15 @@ type PetButtonProps = {
   actionType: "add" | "edit" | "checkout";
   children?: React.ReactNode;
   onClick?: () => void;
+  pending?: boolean;
 };
 
-function PetButton({ actionType, children, onClick }: PetButtonProps) {
+function PetButton({ actionType, children, onClick ,pending}: PetButtonProps) {
   const [isFormOpen, setIsFormOpen] = useState(false);
 
   if (actionType === "checkout") {
     return (
-      <Button onClick={onClick} variant={"secondary"} className="">
+      <Button disabled={pending} onClick={onClick} variant={"secondary"} className="">
         {children}
       </Button>
     );
