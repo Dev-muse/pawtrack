@@ -9,3 +9,5 @@ export function cn(...inputs: ClassValue[]) {
 export const sleep = (ms: number) => {
   return new Promise((resolve) => setTimeout(resolve, ms));
 } 
+
+export  const imagePlaceholder = "https://bytegrad.com/course-assets/react-nextjs/pet-placeholder.png"

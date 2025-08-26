@@ -7,7 +7,7 @@ import { Textarea } from "./ui/textarea";
 import { Button } from "./ui/button";
 import { usePetContext } from "@/lib/hooks";
 import { addPet, editPet } from "@/actions/action";
-import { sleep } from "@/lib/utils";
+import { imagePlaceholder, sleep } from "@/lib/utils";
 import PetFormBtn from "./PetFormBtn";
 import { toast } from "sonner";
 
@@ -22,19 +22,21 @@ function PetForm({ actionType, onFormSubmit }: PetFormProps) {
 
   return (
     <form
-      action={async (formData) => {
-        if (actionType === "edit" && selectedPet) {
-          const error = await editPet(selectedPet.id, formData);
-           if (error) {
-            toast.error(error.message);
-          }
-        } else {
-          const error = await addPet(formData);
-          if (error) {
-            toast.error(error.message);
-          }
-        }
+    action={async (formData) => {
         onFormSubmit();
+        const petData = {
+          name: formData.get("name") as string,
+          ownerName: formData.get("ownerName") as string,
+          imageUrl: (formData.get("imageUrl") as string) || imagePlaceholder,
+          age: Number(formData.get("age")),
+          notes: formData.get("notes") as string,
+        };
+
+        if (actionType === "add") {
+          await handleAddPet(petData);
+        } else if (actionType === "edit" && selectedPet) {
+          await handleEditPet(selectedPet.id, petData);
+        }
       }}
       className="flex flex-col gap-y-4"
     >
