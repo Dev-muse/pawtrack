@@ -1,24 +1,24 @@
 "use server";
 import prisma from "@/lib/db";
-import { sleep } from "@/lib/utils";
-import { Pet } from "@prisma/client";
+import { PetEssentials } from "@/lib/types";
+ import { Pet } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 
 const imagePlaceholder =
   "https://bytegrad.com/course-assets/react-nextjs/pet-placeholder.png";
 
-export const addPet = async (pet) => {
+export const addPet = async (pet:PetEssentials) => {
   try {
     await prisma.pet.create({
       data: pet,
     });
   } catch (error) {
     return { message: "Failed to add pet. Please try again." };
-  }
+}
   revalidatePath("/app/dashboard");
 };
 
-export const editPet = async (petId: string, newPetData) => {
+export const editPet = async (petId: Pet['id'], newPetData:PetEssentials) => {
   try {
     await prisma.pet.update({
       where: { id: petId },
@@ -30,7 +30,7 @@ export const editPet = async (petId: string, newPetData) => {
   revalidatePath("/app/dashboard");
 };
 
-export const deletePet = async (petId: string) => {
+export const deletePet = async (petId: Pet['id']) => {
   try {
     await prisma.pet.delete({
       where: { id: petId },

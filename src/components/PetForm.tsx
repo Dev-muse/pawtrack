@@ -4,12 +4,9 @@ import React, { act } from "react";
 import { Label } from "./ui/label";
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
-import { Button } from "./ui/button";
 import { usePetContext } from "@/lib/hooks";
-import { addPet, editPet } from "@/actions/action";
 import { imagePlaceholder, sleep } from "@/lib/utils";
 import PetFormBtn from "./PetFormBtn";
-import { toast } from "sonner";
 
 type PetFormProps = {
   actionType: "add" | "edit";
@@ -22,7 +19,7 @@ function PetForm({ actionType, onFormSubmit }: PetFormProps) {
 
   return (
     <form
-    action={async (formData) => {
+      action={async (formData) => {
         onFormSubmit();
         const petData = {
           name: formData.get("name") as string,
