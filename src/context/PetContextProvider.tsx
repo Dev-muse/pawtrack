@@ -26,11 +26,20 @@ export const PetContext = createContext<TPetContext | null>(null);
 function PetContextProvider({ children, data }: PetContextProviderProps) {
   const [optimisticPets, setOptimisticPets] = useOptimistic(
     data,
-    (state, newPet) => {
-      return [...state, {
-        ...newPet,
-        id:Math.random().toString(36).substring(2, 9), // Generate a temporary ID
-      }];
+    (state, { action, payload }) => {
+      switch (action) {
+        case "add ":
+          return [...state, { id: Date.now().toString(), ...payload }];
+
+        case "edit":
+          return state.map((pet) =>
+            pet.id === payload.id ? { ...pet, ...payload } : pet
+          );
+        case "remove":
+          return state.filter((pet) => pet.id !== payload.id);
+        default:
+          return state;
+      }
     }
   );
   // state to manage pets and selected pet ID
@@ -42,6 +51,10 @@ function PetContextProvider({ children, data }: PetContextProviderProps) {
 
   // helper functions:
   const handleEditPet = async (petId: string, updatedPet: Omit<Pet, "id">) => {
+    setOptimisticPets({
+      action: "edit",
+      payload: { id: petId, ...updatedPet },
+    });
     const error = await editPet(petId, updatedPet);
     if (error) {
       toast.error(error.message);
@@ -49,7 +62,7 @@ function PetContextProvider({ children, data }: PetContextProviderProps) {
   };
 
   const handleAddPet = async (newPet: Omit<Pet, "id">) => {
-    setOptimisticPets(newPet);
+    setOptimisticPets({ action: "add", payload: newPet });
     const error = await addPet(newPet);
     if (error) {
       toast.error(error.message);
@@ -61,7 +74,12 @@ function PetContextProvider({ children, data }: PetContextProviderProps) {
   };
 
   const handleCheckoutPet = async (petId: string) => {
-    await deletePet(petId);
+    setOptimisticPets({ action: "remove", payload: { id: petId } });
+   const error =  await deletePet(petId);
+   if(error){
+    toast.error(error.message);
+    return; 
+   }
     setSelectedPetId(null);
   };
 
