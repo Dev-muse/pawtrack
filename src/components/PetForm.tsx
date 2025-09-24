@@ -8,19 +8,38 @@ import { usePetContext } from "@/lib/hooks";
 import { imagePlaceholder, sleep } from "@/lib/utils";
 import PetFormBtn from "./PetFormBtn";
 import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 type PetFormProps = {
   actionType: "add" | "edit";
   onFormSubmit: () => void; // Optional callback for form submission
 };
 
-type TPetForm = {
-  name: string;
-  ownerName: string;
-  imageUrl: string;
-  age: number;
-  notes?: string;
-};
+
+const petFormSchema = z.object({
+  name: z
+    .string()
+    .trim()
+    .min(2, { message: "Name must be at least 2 characters." })
+    .max(100),
+  ownerName: z
+    .string()
+    .trim()
+    .min(2, { message: "Owner name is required" })
+    .max(100),
+  imageUrl: z
+    .string()
+    .trim()
+    .url({ message: "Image URL must be a valid URL." })
+    .optional()
+    .or(z.literal("")),
+    // get string from form so coerce to number
+  age: z.coerce.number().int().positive().max(999),
+  notes: z.union([z.string().trim().max(500), z.literal("")]),
+});
+
+type TPetForm = z.infer<typeof petFormSchema>;
 
 function PetForm({ actionType, onFormSubmit }: PetFormProps) {
   // Use the custom hook to access pet context
@@ -30,7 +49,9 @@ function PetForm({ actionType, onFormSubmit }: PetFormProps) {
     register,
     formState: { errors },
     trigger,
-  } = useForm<TPetForm>();
+  } = useForm<TPetForm>({
+    resolver: zodResolver(petFormSchema),
+  });
 
   return (
     <form
@@ -60,16 +81,7 @@ function PetForm({ actionType, onFormSubmit }: PetFormProps) {
       <div className="space-y-3">
         <div className="space-y-1">
           <Label htmlFor="name">Name</Label>
-          <Input
-            id="name"
-            {...register("name", {
-              required: "Name is required",
-              minLength: {
-                value: 3,
-                message: "Name must be at least 3 characters",
-              },
-            })}
-          />
+          <Input id="name" {...register("name")} />
           {errors.name && (
             <p className="text-sm text-red-600">
               {errors.name.message as string}
@@ -78,10 +90,7 @@ function PetForm({ actionType, onFormSubmit }: PetFormProps) {
         </div>
         <div className="space-y-1">
           <Label htmlFor="ownerName">Owner Name</Label>
-          <Input
-            id="ownerName"
-            {...register("ownerName", { required: "Owner name is required",maxLength: { value: 10, message: "Owner name must be at most 10 characters" } })}
-          />
+          <Input id="ownerName" {...register("ownerName")} />
           {errors.ownerName && (
             <p className="text-sm text-red-600">
               {errors.ownerName.message as string}
