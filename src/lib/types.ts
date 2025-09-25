@@ -4,6 +4,8 @@ import { imagePlaceholder } from "./utils";
 export  type Pet = PetType;
  export type PetEssentials = Omit<Pet, "id" | "UpdatedAt" | "createdAt">;  
 
+ export const petIdSchema = z.string().cuid();
+ 
  export const petFormSchema = z.object({
    name: z
      .string()
