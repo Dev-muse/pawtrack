@@ -14,6 +14,10 @@ const nextConfig = {
         protocol: "https",
         hostname: "**", // this allows any https domain
       },
+      {
+        protocol: "http",
+        hostname: "**", // this allows any http domain
+      },
     ],
   },
 };

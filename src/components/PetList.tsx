@@ -12,6 +12,7 @@ function PetList() {
 
   // Filter pets based on the search query
   const filteredPets = pets.filter((pet: Pet) =>
+   
     pet.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 

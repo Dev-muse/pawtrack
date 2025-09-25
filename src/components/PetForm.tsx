@@ -5,11 +5,12 @@ import { Label } from "./ui/label";
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
 import { usePetContext } from "@/lib/hooks";
-import { imagePlaceholder, sleep } from "@/lib/utils";
+import { imagePlaceholder } from "@/lib/utils";
 import PetFormBtn from "./PetFormBtn";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { petFormSchema, TPetForm } from "@/lib/types";
 
 type PetFormProps = {
   actionType: "add" | "edit";
@@ -17,29 +18,7 @@ type PetFormProps = {
 };
 
 
-const petFormSchema = z.object({
-  name: z
-    .string()
-    .trim()
-    .min(2, { message: "Name must be at least 2 characters." })
-    .max(100),
-  ownerName: z
-    .string()
-    .trim()
-    .min(2, { message: "Owner name is required" })
-    .max(100),
-  imageUrl: z
-    .string()
-    .trim()
-    .url({ message: "Image URL must be a valid URL." })
-    .optional()
-    .or(z.literal("")),
-    // get string from form so coerce to number
-  age: z.coerce.number().int().positive().max(999),
-  notes: z.union([z.string().trim().max(500), z.literal("")]),
-});
 
-type TPetForm = z.infer<typeof petFormSchema>;
 
 function PetForm({ actionType, onFormSubmit }: PetFormProps) {
   // Use the custom hook to access pet context
@@ -47,7 +26,7 @@ function PetForm({ actionType, onFormSubmit }: PetFormProps) {
 
   const {
     register,
-    formState: { errors },
+    formState: { errors },getValues,
     trigger,
   } = useForm<TPetForm>({
     resolver: zodResolver(petFormSchema),
@@ -62,16 +41,12 @@ function PetForm({ actionType, onFormSubmit }: PetFormProps) {
         // Call the optional onFormSubmit callback
         onFormSubmit();
 
-        const petData = {
-          name: formData.get("name") as string,
-          ownerName: formData.get("ownerName") as string,
-          imageUrl: (formData.get("imageUrl") as string) || imagePlaceholder,
-          age: Number(formData.get("age")),
-          notes: formData.get("notes") as string,
-        };
+        let petData = getValues();
+        petData = {...petData, age: Number(petData.age), imageUrl: petData.imageUrl || imagePlaceholder }
+        // Determine whether to add or edit a pet based on actionType
 
         if (actionType === "add") {
-          await handleAddPet(petData);
+          await handleAddPet(petData);  
         } else if (actionType === "edit" && selectedPet) {
           await handleEditPet(selectedPet.id, petData);
         }
