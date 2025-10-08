@@ -8,9 +8,9 @@ import prisma from "@/lib/db";
 import React from "react";
 
 const layout = async ({ children }: { children: React.ReactNode }) => {
-  const data = await prisma.pet.findMany()
-
-  return (
+  const data = await prisma.pet.findMany();
+ 
+   return (
     <>
       <BackgroundPattern />
       <div className=" flex flex-col min-h-screen max-w-5xl mx-auto px-4">
