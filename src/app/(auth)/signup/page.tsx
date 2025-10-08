@@ -4,7 +4,7 @@ import Link from "next/link";
 import React from "react";
 
 const SignUp = () => {
-  return (
+  return ( 
     <main className=" ">
       <H1 className="mb-5 text-center">Sign Up</H1>
       <AuthForm />
@@ -14,5 +14,5 @@ const SignUp = () => {
     </main>
   );
 };
-
+ 
 export default SignUp;
