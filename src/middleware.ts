@@ -1,13 +1,5 @@
-import { NextResponse } from "next/server"
- function Middleware(request:Request){
-
-  console.log('url', request.url)
-
-  return NextResponse.next()
-
-} 
-export default Middleware
+export { auth as middleware } from "@/lib/auth";
 
 export const config = {
-  matcher: ['/((?!api|_next/static|_next/image|.*\\.png$).*)'],
-}
+  matcher: ["/((?!api|_next/static|_next/image|.*\\.png$).*)"],
+};
