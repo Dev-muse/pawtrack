@@ -7,7 +7,7 @@ const Login = () => {
   return (
     <main className=" ">
       <H1 className="mb-5 text-center">Log In</H1>
-      <AuthForm />
+      <AuthForm type="login" />
       <p className="text-center ">
         No account yet? <Link className="text-sm text-zinc-500" href={'/signup'}>Sign up</Link>
       </p>

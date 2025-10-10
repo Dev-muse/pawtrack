@@ -7,7 +7,7 @@ const SignUp = () => {
   return ( 
     <main className=" ">
       <H1 className="mb-5 text-center">Sign Up</H1>
-      <AuthForm />
+    <AuthForm  type="Signup" />
       <p className="text-center ">
         Already have an account? <Link className="text-sm text-zinc-500" href={'/login'}>Login</Link>
       </p>
