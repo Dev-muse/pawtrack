@@ -18,7 +18,7 @@ const AuthForm = ({ type }: AuthFormTypes) => {
       </div>
 
       <Button className="my-4 w-full">{`${
-        type == "Signup" ? "Sign Up" : "Login"
+        type == "Signup" ? "Sign Up" : "Log In"
       }`}</Button>
     </form>
   );
