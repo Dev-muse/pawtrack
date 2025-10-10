@@ -1,5 +1,6 @@
 import { Prisma, PrismaClient } from "@prisma/client";
- 
+import bcrypt from 'bcrypt';
+
 const prisma = new PrismaClient();
 
 const userData: Prisma.UserCreateInput = {
