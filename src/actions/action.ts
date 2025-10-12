@@ -1,5 +1,5 @@
 "use server";
-import { signIn } from "@/lib/auth";
+import { signIn, signOut } from "@/lib/auth";
 import prisma from "@/lib/db";
 import { PetEssentials, petFormSchema, petIdSchema } from "@/lib/types";
 import { Pet } from "@prisma/client";
@@ -13,6 +13,11 @@ const imagePlaceholder =
 export const login = async (formData: FormData) => {
   const authData = Object.fromEntries(formData.entries());
   await signIn("credentials", authData);
+};
+
+export const logout = async () => {
+  console.log('signed out')
+  await signOut({ redirectTo: "/", redirect: true });
 };
 
 // PET ACTION
