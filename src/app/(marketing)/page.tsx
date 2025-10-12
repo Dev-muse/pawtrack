@@ -7,7 +7,7 @@ import AppPreview from '@/assets/app-preview.png'
 
 export default function Home() {
   return (
-    <main className="bg-[#dd9649] min-h-screen flex flex-col xl:flex-row items-center justify-center gap-10">
+    <main className="bg-[#dd9649] min-h-screen flex flex-col-reverse xl:flex-row items-center justify-center gap-10">
       <Image
         src={AppPreview}
         alt="Preview of PetSoft"
