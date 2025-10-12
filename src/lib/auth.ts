@@ -48,7 +48,13 @@ const config = {
       }
 
       // accessing other route
-      if (!isAccessingApp) return true;
+      if (isLoggedIn && !isAccessingApp) {
+        return Response.redirect(new URL("/app/dashboard", request.nextUrl));
+      }
+
+      if (!isLoggedIn && !isAccessingApp) return true;
+
+      return false;
     },
   },
 } satisfies NextAuthConfig;
