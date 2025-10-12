@@ -15,7 +15,7 @@ export default function Home() {
         height={472}
       />
 
-      <div>
+      <div className="flex flex-col items-center text-center">
         <Logo />
         <h1 className="text-5xl font-semibold my-6 max-w-[500px]">
           Manage your <span className="font-extrabold">pet daycare</span> with
