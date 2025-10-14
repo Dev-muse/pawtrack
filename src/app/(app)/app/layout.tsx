@@ -4,10 +4,7 @@ import BackgroundPattern from "@/components/BackgroundPattern";
 import { Toaster } from "@/components/ui/sonner";
 import PetContextProvider from "@/context/PetContextProvider";
 import SearchContextProvider from "@/context/SearchContextProvider";
-import { auth } from "@/lib/auth";
-import prisma from "@/lib/db";
-import { checkAuth } from "@/lib/server-utils";
-import { redirect } from "next/navigation";
+import { checkAuth, getPetsByUserId } from "@/lib/server-utils";
 import React from "react";
 
 const layout = async ({ children }: { children: React.ReactNode }) => {
@@ -15,11 +12,7 @@ const layout = async ({ children }: { children: React.ReactNode }) => {
 
   // only find pet of logged in user
 
-  const data = await prisma.pet.findMany({
-    where: {
-      userId: session?.user?.id,
-    },
-  });
+  const pets = await getPetsByUserId(session.user.id);
 
   return (
     <>
@@ -27,7 +20,7 @@ const layout = async ({ children }: { children: React.ReactNode }) => {
       <div className=" flex flex-col min-h-screen max-w-5xl mx-auto px-4">
         <AppHeader />
         <SearchContextProvider>
-          <PetContextProvider data={data}>{children}</PetContextProvider>
+          <PetContextProvider data={pets}>{children}</PetContextProvider>
         </SearchContextProvider>
         <AppFooter />
         <Toaster />

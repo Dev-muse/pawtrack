@@ -1,7 +1,7 @@
 "use server";
 import { auth, signIn, signOut } from "@/lib/auth";
 import prisma from "@/lib/db";
-import { checkAuth } from "@/lib/server-utils";
+import { checkAuth, getPetByPetId } from "@/lib/server-utils";
 import { PetEssentials, petFormSchema, petIdSchema } from "@/lib/types";
 import { Pet } from "@prisma/client";
 import bcrypt from "bcryptjs";
@@ -42,7 +42,7 @@ export const signUp = async (formData: FormData) => {
 
 export const addPet = async (pet: unknown) => {
   // check session logged in before validation
-  const session = await checkAuth()
+  const session = await checkAuth();
 
   // vaidate data
   const validatedPet = petFormSchema.safeParse(pet);
@@ -71,8 +71,8 @@ export const addPet = async (pet: unknown) => {
 };
 
 export const editPet = async (petId: unknown, newPetData: unknown) => {
-  // authentication 
-  const session = await checkAuth()
+  // authentication
+  const session = await checkAuth();
 
   // validation
   const validatedPetId = petIdSchema.safeParse(petId);
@@ -83,22 +83,17 @@ export const editPet = async (petId: unknown, newPetData: unknown) => {
   }
 
   // authorization
-const pet = await prisma.pet.findUnique({
-  where:{
-    id: validatedPetId.data
+  const pet = await getPetByPetId(validatedPetId.data);
+
+  if (!pet) {
+    return { message: "Cannot edit pet: pet does not exist!s" };
   }
-})
 
-if(!pet){
-  return {message:'Cannot edit pet: pet does not exist!s'}
-}
-
-if(pet.userId !== session.user.id){
-  return {
-    message: 'User not authorized to edit pet data'
+  if (pet.userId !== session.user.id) {
+    return {
+      message: "User not authorized to edit pet data",
+    };
   }
-}
-
 
   // db mutation
   try {
@@ -115,7 +110,7 @@ if(pet.userId !== session.user.id){
 export const deletePet = async (petId: unknown) => {
   // authentication
 
-    const session = await checkAuth()
+  const session = await checkAuth();
 
   // validation
   const validatedPetId = petIdSchema.safeParse(petId);
@@ -125,11 +120,8 @@ export const deletePet = async (petId: unknown) => {
 
   // authorisation - check if deleted pet associated user id is the logged  userid
 
-  const pet = await prisma.pet.findUnique({
-    where: {
-      id: validatedPetId.data,
-    },
-  });
+  const pet = await getPetByPetId(validatedPetId.data);
+  
   if (!pet) {
     return {
       message: "Pet not found",
