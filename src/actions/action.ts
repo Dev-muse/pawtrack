@@ -1,16 +1,17 @@
 "use server";
-import { signIn, signOut } from "@/lib/auth";
+import { auth, signIn, signOut } from "@/lib/auth";
 import prisma from "@/lib/db";
 import { PetEssentials, petFormSchema, petIdSchema } from "@/lib/types";
 import { Pet } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { z } from "zod";
 
 const imagePlaceholder =
   "https://bytegrad.com/course-assets/react-nextjs/pet-placeholder.png";
 
-//user actions
+//USER ACTIONS
 export const login = async (formData: FormData) => {
   const authData = Object.fromEntries(formData.entries());
   await signIn("credentials", authData);
@@ -39,6 +40,11 @@ export const signUp = async (formData: FormData) => {
 // PET ACTION
 
 export const addPet = async (pet: unknown) => {
+  // check session logged in before validation
+  const session = await auth();
+  if (!session?.user) redirect("/login");
+
+  // vaidate data
   const validatedPet = petFormSchema.safeParse(pet);
   if (!validatedPet.success) {
     const errorMessages = validatedPet.error.errors
@@ -49,7 +55,14 @@ export const addPet = async (pet: unknown) => {
 
   try {
     await prisma.pet.create({
-      data: validatedPet.data,
+      data: {
+        ...validatedPet.data,
+        User: {
+          connect: {
+            id: session.user.id,
+          },
+        },
+      },
     });
   } catch (error) {
     return { message: "Failed to add pet. Please try again." };
