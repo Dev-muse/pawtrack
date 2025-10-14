@@ -89,11 +89,39 @@ export const editPet = async (petId: unknown, newPetData: unknown) => {
 };
 
 export const deletePet = async (petId: unknown) => {
+  // authentication
+
+  const session = await auth();
+  if (!session?.user) {
+    redirect("/login");
+  }
+
+  // validation
   const validatedPetId = petIdSchema.safeParse(petId);
   if (!validatedPetId.success) {
     return { message: `Invalid pet id` };
   }
 
+  // authorisation - check if deleted pet associated user id is the logged  userid
+
+  const pet = await prisma.pet.findUnique({
+    where: {
+      id: validatedPetId.data,
+    },
+  });
+  if (!pet) {
+    return {
+      message: "Pet not found",
+    };
+  }
+
+  if (pet.userId !== session.user.id) {
+    return {
+      message: "User not authorised to delete pet",
+    };
+  }
+
+  // db mutation
   try {
     await prisma.pet.delete({
       where: { id: validatedPetId.data },
