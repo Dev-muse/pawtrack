@@ -1,8 +1,8 @@
+import bcrypt from "bcryptjs";
 import NextAuth, { NextAuthConfig } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
-import bcrypt from "bcryptjs";
-import prisma from "./db";
 import { getUserByEmail } from "./server-utils";
+import { authSchema } from "./types";
 
 const config = {
   pages: {
@@ -14,8 +14,16 @@ const config = {
   },
   providers: [
     Credentials({
-      async authorize(credential) {
-        const { email, password } = credential;
+      async authorize(credentials) {
+        // validation
+        const validatedCredentialObject = authSchema.safeParse(credentials)
+
+        if(!validatedCredentialObject.success){
+          return null
+        }
+
+        // runs on login 
+        const { email, password } = validatedCredentialObject.data;
 
         const user = await getUserByEmail(email);
         if (!user) {
@@ -57,7 +65,7 @@ const config = {
     jwt: ({ token, user }) => {
       if (user) {
         // on sign in
-        token.userId = user.id;
+        token.userId = user.id as string;
       }
 
       return token;
@@ -65,7 +73,7 @@ const config = {
     // exposed to client
     session: ({ session, token }) => {
       if (session.user) {
-        session.user.id = token.userId as string;
+        session.user.id = token.userId ;
       }
       return session;
     },

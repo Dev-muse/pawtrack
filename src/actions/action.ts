@@ -2,7 +2,12 @@
 import { auth, signIn, signOut } from "@/lib/auth";
 import prisma from "@/lib/db";
 import { checkAuth, getPetByPetId } from "@/lib/server-utils";
-import { PetEssentials, petFormSchema, petIdSchema } from "@/lib/types";
+import {
+  authSchema,
+  PetEssentials,
+  petFormSchema,
+  petIdSchema,
+} from "@/lib/types";
 import { Pet } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { revalidatePath } from "next/cache";
@@ -13,24 +18,50 @@ const imagePlaceholder =
   "https://bytegrad.com/course-assets/react-nextjs/pet-placeholder.png";
 
 //USER ACTIONS
-export const login = async (formData: FormData) => {
-  const authData = Object.fromEntries(formData.entries());
-  await signIn("credentials", authData);
+export const login = async (formData: unknown) => {
+  //don't know what data we get from client so need to validate before passing it on to next-auth
+  if (!(formData instanceof FormData)) {
+    return {
+      message: "Invalid form data format",
+    };
+  }
+
+  try {
+    
+    const response = await signIn("credentials", formData);
+  } catch (error) {
+    if(error instanceof Error){
+      console.log('login error',error)
+    }
+  }
+  redirect("/app/dashboard");
+ 
 };
 
 export const logout = async () => {
-  console.log("signed out");
   await signOut({ redirectTo: "/", redirect: true });
 };
 
-export const signUp = async (formData: FormData) => {
-  const hashedPassword = await bcrypt.hash(
-    formData.get("password") as string,
-    10
-  );
+export const signUp = async (formData: unknown) => {
+  // convert object
+  if (!(formData instanceof FormData)) {
+    return { message: "Invalid form data format" };
+  }
+
+  const formDataObject = Object.fromEntries(formData.entries());
+  // validate
+
+  const validatedData = authSchema.safeParse(formDataObject);
+  if (!validatedData.success) {
+    return { message: "Invalid data type" };
+  }
+
+  const { email, password } = validatedData.data;
+
+  const hashedPassword = await bcrypt.hash(password, 10);
   await prisma?.user.create({
     data: {
-      email: formData.get("email") as string,
+      email,
       hashedPassword,
     },
   });
@@ -121,7 +152,7 @@ export const deletePet = async (petId: unknown) => {
   // authorisation - check if deleted pet associated user id is the logged  userid
 
   const pet = await getPetByPetId(validatedPetId.data);
-  
+
   if (!pet) {
     return {
       message: "Pet not found",
