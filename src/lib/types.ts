@@ -2,7 +2,7 @@ import { Pet as PetType } from "@prisma/client";
 import { z } from "zod";
 import { imagePlaceholder } from "./utils";
 export type Pet = PetType;
-export type PetEssentials = Omit<Pet, "id" | "UpdatedAt" | "createdAt">;
+export type PetEssentials = Omit<Pet, "id" | "UpdatedAt" | "createdAt" |'userId'>;
  
 export const petIdSchema = z.string().cuid();
 
