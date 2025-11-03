@@ -265,4 +265,3 @@ For support, please contact the repository maintainer.
 ---
 
 Built with ❤️ using Next.js
-ould you like me to adjust anything in the README or add additional sections?
