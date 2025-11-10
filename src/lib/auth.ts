@@ -44,11 +44,17 @@ const config = {
   ],
   callbacks: {
     authorized({ auth, request }) {
+      // decided which pages users have access to
       const isLoggedIn = Boolean(auth?.user);
       const isAccessingApp = request.nextUrl.pathname.includes("/app");
       if (!isLoggedIn && isAccessingApp) {
         return false;
       }
+
+      if (isLoggedIn && isAccessingApp && !auth?.user.hasAccess) {
+        return Response.redirect(new URL("/payment", request.nextUrl));
+      }
+
       if (isLoggedIn && isAccessingApp && auth?.user.hasAccess) {
         return true;
       }
@@ -56,8 +62,8 @@ const config = {
       // accessing other route
       if (isLoggedIn && !isAccessingApp) {
         if (
-          request.nextUrl.pathname.includes("/login") ||
-          request.nextUrl.pathname.includes("/signup")
+          (request.nextUrl.pathname.includes("/login") ||
+          request.nextUrl.pathname.includes("/signup")) && !auth?.user.hasAccess
         ) {
           return Response.redirect(new URL("/payment", request.nextUrl));
         }
@@ -71,7 +77,8 @@ const config = {
     jwt: ({ token, user }) => {
       if (user) {
         // on sign in
-        token.userId = user.id as string;
+        token.userId = user.id;
+        token.hasAccess = user.hasAccess;
       }
 
       return token;
@@ -80,6 +87,7 @@ const config = {
     session: ({ session, token }) => {
       if (session.user) {
         session.user.id = token.userId;
+        session.user.hasAccess = token.hasAccess;
       }
       return session;
     },
