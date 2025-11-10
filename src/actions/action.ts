@@ -8,6 +8,7 @@ import {
   petFormSchema,
   petIdSchema,
 } from "@/lib/types";
+import { sleep } from "@/lib/utils";
 import { Pet, Prisma } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { AuthError } from "next-auth";
@@ -29,6 +30,8 @@ export const login = async (prevState: unknown, formData: unknown) => {
 
   try {
     await signIn("credentials", formData);
+    // after signIn next-auth calls redirect
+    // but this throws and error here which is caught by catch block
   } catch (error) {
     if (error instanceof AuthError) {
       switch (error.type) {
@@ -40,20 +43,20 @@ export const login = async (prevState: unknown, formData: unknown) => {
 
         default: {
           return {
-            message: "Could not Sign In",
+            message: "Error: Could not Sign In",
           };
         }
       }
     }
 
-    return {
-      message: "Could not sign in",
-    };
+    // throw error again to help redirect and trigger auth.ts redirect logic
+    //specifically user signed in and trying to access public route
+    throw error;
   }
-  redirect("/app/dashboard");
 };
 
 export const logout = async () => {
+  await sleep(2000);
   await signOut({ redirectTo: "/", redirect: true });
 };
 
