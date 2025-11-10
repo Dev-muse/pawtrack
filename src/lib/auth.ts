@@ -49,7 +49,7 @@ const config = {
       if (!isLoggedIn && isAccessingApp) {
         return false;
       }
-      if (isLoggedIn && isAccessingApp) {
+      if (isLoggedIn && isAccessingApp && auth?.user.hasAccess) {
         return true;
       }
 
