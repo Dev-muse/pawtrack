@@ -1,20 +1,17 @@
 "use server";
-import { auth, signIn, signOut } from "@/lib/auth";
+import { signIn, signOut } from "@/lib/auth";
 import prisma from "@/lib/db";
 import { checkAuth, getPetByPetId } from "@/lib/server-utils";
-import {
-  authSchema,
-  PetEssentials,
-  petFormSchema,
-  petIdSchema,
-} from "@/lib/types";
+import { authSchema, petFormSchema, petIdSchema } from "@/lib/types";
 import { sleep } from "@/lib/utils";
-import { Pet, Prisma } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { AuthError } from "next-auth";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { z } from "zod";
+
+import Stripe from "stripe";
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
 const imagePlaceholder =
   "https://bytegrad.com/course-assets/react-nextjs/pet-placeholder.png";
@@ -202,4 +199,28 @@ export const deletePet = async (petId: unknown) => {
     return { message: "Failed to delete pet. Please try again." };
   }
   revalidatePath("/app/dashboard");
+};
+
+// payment actions
+
+export const createCheckoutSession = async () => {
+  const session = await checkAuth();
+
+  // call stripe
+  const checkoutSession = await stripe.checkout.sessions.create({
+    customer_email: session.user.email as string,
+    line_items: [
+      {
+        price: "price_1SRxmjE3wCco2qxQCV2haLP8",
+        quantity: 1,
+      },
+    ],
+    mode: "payment",
+    success_url: `${process.env.DEPLOYED_URL}/payment?success=true`,
+    cancel_url: `${process.env.DEPLOYED_URL}/payment?cancelled=true`,
+  });
+  if (checkoutSession) {
+    // redirect to checkout page
+    redirect(checkoutSession.url!);
+  }
 };

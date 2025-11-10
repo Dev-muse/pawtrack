@@ -16,13 +16,13 @@ const config = {
     Credentials({
       async authorize(credentials) {
         // validation
-        const validatedCredentialObject = authSchema.safeParse(credentials)
+        const validatedCredentialObject = authSchema.safeParse(credentials);
 
-        if(!validatedCredentialObject.success){
-          return null
+        if (!validatedCredentialObject.success) {
+          return null;
         }
 
-        // runs on login 
+        // runs on login
         const { email, password } = validatedCredentialObject.data;
 
         const user = await getUserByEmail(email);
@@ -55,7 +55,13 @@ const config = {
 
       // accessing other route
       if (isLoggedIn && !isAccessingApp) {
-        return Response.redirect(new URL("/app/dashboard", request.nextUrl));
+        if (
+          request.nextUrl.pathname.includes("/login") ||
+          request.nextUrl.pathname.includes("/signup")
+        ) {
+          return Response.redirect(new URL("/payment", request.nextUrl));
+        }
+        return true;
       }
 
       if (!isLoggedIn && !isAccessingApp) return true;
@@ -73,7 +79,7 @@ const config = {
     // exposed to client
     session: ({ session, token }) => {
       if (session.user) {
-        session.user.id = token.userId ;
+        session.user.id = token.userId;
       }
       return session;
     },
