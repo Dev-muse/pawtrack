@@ -16,13 +16,13 @@ const config = {
     Credentials({
       async authorize(credentials) {
         // validation
-        const validatedCredentialObject = authSchema.safeParse(credentials)
+        const validatedCredentialObject = authSchema.safeParse(credentials);
 
-        if(!validatedCredentialObject.success){
-          return null
+        if (!validatedCredentialObject.success) {
+          return null;
         }
 
-        // runs on login 
+        // runs on login
         const { email, password } = validatedCredentialObject.data;
 
         const user = await getUserByEmail(email);
@@ -44,18 +44,30 @@ const config = {
   ],
   callbacks: {
     authorized({ auth, request }) {
+      // decided which pages users have access to
       const isLoggedIn = Boolean(auth?.user);
       const isAccessingApp = request.nextUrl.pathname.includes("/app");
       if (!isLoggedIn && isAccessingApp) {
         return false;
       }
-      if (isLoggedIn && isAccessingApp) {
+
+      if (isLoggedIn && isAccessingApp && !auth?.user.hasAccess) {
+        return Response.redirect(new URL("/payment", request.nextUrl));
+      }
+
+      if (isLoggedIn && isAccessingApp && auth?.user.hasAccess) {
         return true;
       }
 
       // accessing other route
       if (isLoggedIn && !isAccessingApp) {
-        return Response.redirect(new URL("/app/dashboard", request.nextUrl));
+        if (
+          (request.nextUrl.pathname.includes("/login") ||
+          request.nextUrl.pathname.includes("/signup")) && !auth?.user.hasAccess
+        ) {
+          return Response.redirect(new URL("/payment", request.nextUrl));
+        }
+        return true;
       }
 
       if (!isLoggedIn && !isAccessingApp) return true;
@@ -65,7 +77,8 @@ const config = {
     jwt: ({ token, user }) => {
       if (user) {
         // on sign in
-        token.userId = user.id as string;
+        token.userId = user.id;
+        token.hasAccess = user.hasAccess;
       }
 
       return token;
@@ -73,7 +86,8 @@ const config = {
     // exposed to client
     session: ({ session, token }) => {
       if (session.user) {
-        session.user.id = token.userId ;
+        session.user.id = token.userId;
+        session.user.hasAccess = token.hasAccess;
       }
       return session;
     },
